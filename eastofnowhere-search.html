@@ -4,36 +4,71 @@
 <meta charset="utf-8">
 <title>East of Nowhere Map Selection</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
-<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css" type="text/css">
+<script src="https://kit.fontawesome.com/d72363c0a2.js" crossorigin="anonymous"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css" type="text/css">
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
 <style>
     h1, h2 {text-align: center;}
     body { margin: 0; padding: 0; }
     #map { 
         position: relative; 
         height: 600px;
+        /* position: absolute;
+        top: 0;
+        bottom: 0; */
         width: 100%; 
         }
+        .calculation-box {
+        height: 75px;
+        width: 150px;
+        position: absolute;
+        bottom: 40px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        text-align: center;
+    }
+    p {
+        font-family: 'Open Sans';
+        margin: 0;
+        font-size: 13px;
+    }
+    button {
+        display: block;
+        margin: auto;
+    }
 </style>
 </head>
 <body>
     <h1>East of Nowhere</h1>
     <h2> Select what part of the world you want to make a map of.</h2>
 <div id="map"></div>
+<div class="calculation-box">
+    <p>Click the map to select where you want your map made.<br>
+    When you complete, click the <i class="fa-regular fa-circle-dot" style="color: #FFD43B;"></i></p>
+    <div id="calculated-area"></div><br>
+    <button onclick="captureAndCacheScreenshot()">Save Selected Area</button>
+</div>
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiamRzY2hhcmYiLCJhIjoiY2p0ZHY4enNpMGg5ODN5cDdzajF2OWxsdCJ9.rv3Me2cIGTgBNQf4SqY6tw';
     const map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v9',
-        projection: 'globe', // Display the map as a globe, since satellite-v9 defaults to Mercator
-        zoom: 1,
+        style: 'mapbox://styles/jdscharf/cm8ara9ol007901qrhf333dnv',
+        projection: 'globe', // Display the map as a globe
+        zoom: 1.5,
         center: [30, 15]
     });
 
     map.addControl(new mapboxgl.NavigationControl());
-    map.scrollZoom.disable();
+    map.scrollZoom.enable();
+    map.scrollZoom.setWheelZoomRate(3); // Adjust for faster/slower zooming
+
 
     map.on('style.load', () => {
         map.setFog({}); // Set the default atmosphere style
@@ -116,6 +151,41 @@
                 alert('Click the map to draw a polygon.');
         }
     }
+
+    // Adding search bar
+    const geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    placeholder: 'Search for a location...',
+    marker: true,
+    zoom: 12
+});
+
+map.addControl(geocoder, 'top-left');
+
+// Function to capture and cache screenshot
+async function captureAndCacheScreenshot() {
+    const canvas = map.getCanvas(); // Get the map's canvas
+    const dataUrl = canvas.toDataURL('image/png'); // Convert to Base64
+
+    // Convert data URL to Blob
+    const blob = await (await fetch(dataUrl)).blob();
+
+    // Open the browser cache
+    const cache = await caches.open('map-screenshots');
+
+    // Add the image to the cache
+    await cache.put('/latest-map-screenshot.png', new Response(blob));
+
+    console.log('Screenshot saved to cache!');
+}
+
+// Add a button to trigger screenshot capture
+// const button = document.createElement('button');
+// button.innerText = 'Capture Screenshot';
+// button.onclick = captureAndCacheScreenshot;
+// document.body.appendChild(button);
+
 </script>
 
 </body>
