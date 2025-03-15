@@ -26,13 +26,13 @@
         }
         .calculation-box {
         height: 75px;
-        width: 150px;
+        width: 300px;
         position: absolute;
         bottom: 40px;
         left: 10px;
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 15px;
-        text-align: center;
+        background-color: rgba(245, 245, 231, 0.9);
+        padding: 10px;
+        text-align: left;
     }
     p {
         font-family: 'Open Sans';
@@ -50,10 +50,16 @@
     <h2> Select what part of the world you want to make a map of.</h2>
 <div id="map"></div>
 <div class="calculation-box">
-    <p>Click the map to select where you want your map made.<br>
-    When you complete, click the <i class="fa-regular fa-circle-dot" style="color: #FFD43B;"></i></p>
+    <h2>Instructions</h2>
+    <ol>
+        <li>Click the map to select where you want your map made.  Has to be a square or rectangle.</li>
+        <li>
+    When you complete the square or rectangle, click the <i class="fa-regular fa-circle-dot" style="color: #FFD43B;"></i></li>
+        <li>After you create your square/rectangle, if you want to move it you can drag it around or adjust the points.</li>
+        <li>When you are ready to submit your selected area, click the Submit Map Area button below.</li>
+    </ol>
     <div id="calculated-area"></div><br>
-    <button onclick="captureAndCacheScreenshot()">Save Selected Area</button>
+    <button onclick="captureAndCacheScreenshot()">Submit Map Area</button>
 </div>
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiamRzY2hhcmYiLCJhIjoiY2p0ZHY4enNpMGg5ODN5cDdzajF2OWxsdCJ9.rv3Me2cIGTgBNQf4SqY6tw';
