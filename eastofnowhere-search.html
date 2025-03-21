@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <title>East of Nowhere Map Selection</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Finlandica:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,849;1,849&display=swap" rel="stylesheet">
 <script src="https://kit.fontawesome.com/d72363c0a2.js" crossorigin="anonymous"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js"></script>
@@ -14,7 +17,15 @@
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css" type="text/css">
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
 <style>
-    h1, h2 {text-align: center;}
+    h1, h2, p, .submit-button {
+    font-family: "Finlandica", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+    h1, h2 {
+        text-align: center;}
     body { margin: 0; padding: 0; }
     #map { 
         position: relative; 
@@ -25,23 +36,25 @@
         width: 100%; 
         }
         .calculation-box {
-        height: 75px;
+        height: 400px;
         width: 300px;
         position: absolute;
-        bottom: 40px;
+        bottom: 200px;
         left: 10px;
         background-color: rgba(245, 245, 231, 0.9);
         padding: 10px;
         text-align: left;
     }
     p {
-        font-family: 'Open Sans';
         margin: 0;
-        font-size: 13px;
+        /* font-size: 13px; */
     }
-    button {
+    .submit-button {
         display: block;
         margin: auto;
+        padding: 10px 70px 10px 70px;
+        background-color: black;
+        color:white;
     }
 </style>
 </head>
@@ -59,7 +72,9 @@
         <li>When you are ready to submit your selected area, click the Submit Map Area button below.</li>
     </ol>
     <div id="calculated-area"></div><br>
-    <button onclick="captureAndCacheScreenshot()">Submit Map Area</button>
+    <button class="submit-button" onclick="captureAndCacheScreenshot()">Submit Map Area</button>
+    <br>
+    <br>
 </div>
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiamRzY2hhcmYiLCJhIjoiY2p0ZHY4enNpMGg5ODN5cDdzajF2OWxsdCJ9.rv3Me2cIGTgBNQf4SqY6tw';
