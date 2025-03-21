@@ -12,6 +12,7 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
 <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src='mapbox-gl-draw-rectangle-mode.min.js'></script>
 
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css" type="text/css">
@@ -83,7 +84,7 @@
         style: 'mapbox://styles/jdscharf/cm8ara9ol007901qrhf333dnv',
         projection: 'globe', // Display the map as a globe
         zoom: 1.5,
-        center: [30, 15]
+        center: [-75, 20]
     });
 
     map.addControl(new mapboxgl.NavigationControl());
@@ -140,38 +141,55 @@
 
     spinGlobe();
 
-    // Trying to add bounding box code
-    const draw = new MapboxDraw({
-        displayControlsDefault: false,
-        // Select which mapbox-gl-draw control buttons to add to the map.
-        controls: {
-            polygon: true,
-            trash: true
-        },
+    // Trying to add drawrectangle mode
+
+    var modes = MapboxDraw.modes;
+    modes.draw_rectangle = DrawRectangle.default;
+
+   // Select which mapbox-gl-draw control buttons to add to the map.
+          // Trying to add bounding box code
+    var draw = new MapboxDraw({
+        // displayControlsDefault: false,
+    //    controls: {
+    //         // polygon: true,
+    //         trash: true
+    //     },
+
+        modes: modes,
+        defaultMode: 'draw_rectangle'
         // Set mapbox-gl-draw to draw by default.
         // The user does not have to click the polygon control button first.
-        defaultMode: 'draw_polygon'
+        // defaultMode: 'draw_rectangle'
     });
+
     map.addControl(draw);
 
-    map.on('draw.create', updateArea);
-    map.on('draw.delete', updateArea);
-    map.on('draw.update', updateArea);
+    draw.changeMode('draw_rectangle');
 
-    function updateArea(e) {
-        const data = draw.getAll();
-        const answer = document.getElementById('calculated-area');
-        if (data.features.length > 0) {
-            const area = turf.area(data);
-            // Restrict the area to 2 decimal points.
-            const rounded_area = Math.round(area * 100) / 100;
-            answer.innerHTML = `Map Area has been captured.<br>This map includes: <p><strong>${rounded_area}</strong></p><p>square meters</p>`;
-        } else {
-            answer.innerHTML = '';
-            if (e.type !== 'draw.delete')
-                alert('Click the map to draw a polygon.');
-        }
-    }
+    map.on('draw.create', function (feature) {
+        console.log(feature)
+    })
+
+
+    // map.on('draw.create', updateArea);
+    // map.on('draw.delete', updateArea);
+    // map.on('draw.update', updateArea);
+
+
+    // function updateArea(e) {
+    //     const data = draw.getAll();
+    //     const answer = document.getElementById('calculated-area');
+    //     if (data.features.length > 0) {
+    //         const area = turf.area(data);
+    //         // Restrict the area to 2 decimal points.
+    //         const rounded_area = Math.round(area * 100) / 100;
+    //         answer.innerHTML = `Map Area has been captured.<br>This map includes: <p><strong>${rounded_area}</strong></p><p>square meters</p>`;
+    //     } else {
+    //         answer.innerHTML = '';
+    //         if (e.type !== 'draw.delete')
+    //             alert('Click the map to draw a polygon.');
+    //     }
+    // }
 
     // Adding search bar
     const geocoder = new MapboxGeocoder({
@@ -185,21 +203,21 @@
 map.addControl(geocoder, 'top-left');
 
 // Function to capture and cache screenshot
-async function captureAndCacheScreenshot() {
-    const canvas = map.getCanvas(); // Get the map's canvas
-    const dataUrl = canvas.toDataURL('image/png'); // Convert to Base64
+// async function captureAndCacheScreenshot() {
+//     const canvas = map.getCanvas(); // Get the map's canvas
+//     const dataUrl = canvas.toDataURL('image/png'); // Convert to Base64
 
-    // Convert data URL to Blob
-    const blob = await (await fetch(dataUrl)).blob();
+//     // Convert data URL to Blob
+//     const blob = await (await fetch(dataUrl)).blob();
 
-    // Open the browser cache
-    const cache = await caches.open('map-screenshots');
+//     // Open the browser cache
+//     const cache = await caches.open('map-screenshots');
 
-    // Add the image to the cache
-    await cache.put('/latest-map-screenshot.png', new Response(blob));
+//     // Add the image to the cache
+//     await cache.put('/latest-map-screenshot.png', new Response(blob));
 
-    console.log('Screenshot saved to cache!');
-}
+//     console.log('Screenshot saved to cache!');
+// }
 
 // Add a button to trigger screenshot capture
 // const button = document.createElement('button');
