@@ -1,156 +1,266 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>East of Nowhere Map Selection</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<link href="styles.css" rel="stylesheet"
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Finlandica:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,849;1,849&display=swap" rel="stylesheet">
-<script src="https://kit.fontawesome.com/d72363c0a2.js" crossorigin="anonymous"></script>
-<script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
-<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js"></script>
-<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
-<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
-<script src='mapbox-gl-draw-rectangle-mode.min.js'></script>
+  <head>
+    <meta charset="utf-8" />
+    <title>East of Nowhere Map Selection</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link href="styles.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barriecito&family=Finlandica:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,849;1,849&display=swap"
+      rel="stylesheet"
+    />
+    <script
+      src="https://kit.fontawesome.com/d72363c0a2.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="mapbox-gl-draw-rectangle-mode.min.js"></script>
 
-<link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
-<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css" type="text/css">
-<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
-</head>
-<body>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css"
+      type="text/css"
+    />
+  </head>
+  <body>
     <h1>East of Nowhere</h1>
-    <h2> Select what part of the world you want to make a map of.</h2>
-<div id="map"></div>
-<div class="calculation-box">
-    <h2>Instructions</h2>
-    <ol>
-        <li>Click the map to select where you want your map made.  Has to be a square or rectangle.</li>
+    <h2>Select what part of the world you want to make a map of.</h2>
+    <div id="map"></div>
+    <div class="calculation-box">
+      <h2>Instructions</h2>
+      <ol>
         <li>
-    When you complete the square or rectangle, click the <i class="fa-regular fa-circle-dot" style="color: #FFD43B;"></i></li>
-        <li>After you create your square/rectangle, if you want to move it you can drag it around or adjust the points.</li>
-        <li>If you need to cancel the boundary and redo it, click the <i class="fa-solid fa-trash"></i>. 
-        <li>To select a new boundary then click the <i class="fa-regular fa-square"></i> icon.</li>
-        <li>When you are ready to submit your selected area, click the Submit Map Area button below.</li>
-    </ol>
-    <div id="calculated-area"></div><br>
-    <button class="submit-button" onclick="captureAndCacheScreenshot()">Submit Map Area</button>
-    <br>
-    <br>
-    <br>
-</div>
-<script>
-	mapboxgl.accessToken = 'pk.eyJ1IjoiamRzY2hhcmYiLCJhIjoiY2p0ZHY4enNpMGg5ODN5cDdzajF2OWxsdCJ9.rv3Me2cIGTgBNQf4SqY6tw';
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/jdscharf/cm8ara9ol007901qrhf333dnv',
-        projection: 'globe', // Display the map as a globe
+          Click the map to select where you want your map made. Has to be a
+          square or rectangle.
+        </li>
+        <li>
+          When you complete the square or rectangle, click the
+          <i class="fa-regular fa-circle-dot" style="color: #ffd43b"></i>
+        </li>
+        <li>
+          After you create your square/rectangle, if you want to move it you can
+          drag it around or adjust the points.
+        </li>
+        <li>
+          If you need to cancel the boundary and redo it, click the
+          <i class="fa-solid fa-trash"></i>.
+        </li>
+        <li>
+          To select a new boundary then click the
+          <i class="fa-regular fa-square"></i> icon.
+        </li>
+        <li>
+          When you are ready to submit your selected area, click the Submit Map
+          Area button that will appear below.
+        </li>
+      </ol>
+      <div id="coord-box">
+        <h4>The area that you selected includes the following coordinates:</h4>
+        <table>
+          <tr>
+            <th>Corner</th>
+            <th>Boundary</th>
+          </tr>
+          <tr>
+            <td>Southwest Corner</td>
+            <td id="lat-value"></td>
+          </tr>
+          <tr>
+            <td>Northeast Corner</td>
+            <td id="long-value"></td>
+          </tr>
+        </table>
+        <br />
+        <br />
+      </div>
+      <br />
+      <br />
+      <br />
+    </div>
+    <div id="button-div">
+        <!-- modify this form HTML and place wherever you want your form -->
+<form
+action="https://formspree.io/f/mrbpqppw"
+method="POST"
+>
+<label>
+    Your name:
+    <input type="text" name="name">
+  </label>
+  <br>
+  <br>
+
+<label>
+  Your email:
+  <input type="email" name="email">
+</label>
+<br>
+<br>
+
+<label for="style">Choose Map Style:
+    <select>
+        <option value="Minimalist">Minimalist</option>
+        <option value="Topographic">Topographic</option>
+    </select>
+</label>
+<br>
+<br>
+
+<label for="southest-corner">
+  Southwest Corner:
+  <input type="text" name="southwest-corner">
+</label>
+<br>
+<br>
+
+<label for="northest-corner">
+    Northeast Corner:
+    <input type="text" name="northest-corner">
+  </label>
+  <br>
+  <br>
+<!-- your other form fields go here -->
+
+<button class="submitButton" onclick="captureAndCacheScreenshot()" type="submit">
+    Submit Map Area
+  </button>
+  <br>
+  <br>
+</form>
+
+    </div>
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiamRzY2hhcmYiLCJhIjoiY2p0ZHY4enNpMGg5ODN5cDdzajF2OWxsdCJ9.rv3Me2cIGTgBNQf4SqY6tw";
+      const map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/jdscharf/cm8ara9ol007901qrhf333dnv",
+        projection: "globe", // Display the map as a globe
         zoom: 1.5,
-        center: [-75, 20]
-    });
+        center: [-75, 20],
+      });
 
-    map.addControl(new mapboxgl.NavigationControl());
-    map.scrollZoom.enable();
-    map.scrollZoom.setWheelZoomRate(3); // Adjust for faster/slower zooming
+      map.addControl(new mapboxgl.NavigationControl());
+      map.scrollZoom.enable();
+      map.scrollZoom.setWheelZoomRate(3); // Adjust for faster/slower zooming
 
-
-    map.on('style.load', () => {
+      map.on("style.load", () => {
         map.setFog({}); // Set the default atmosphere style
-    });
+      });
 
-    // The following values can be changed to control rotation speed:
+      // The following values can be changed to control rotation speed:
 
-    // At low zooms, complete a revolution every two minutes.
-    const secondsPerRevolution = 240;
-    // Above zoom level 5, do not rotate.
-    const maxSpinZoom = 5;
-    // Rotate at intermediate speeds between zoom levels 3 and 5.
-    const slowSpinZoom = 3;
+      // At low zooms, complete a revolution every two minutes.
+      const secondsPerRevolution = 240;
+      // Above zoom level 5, do not rotate.
+      const maxSpinZoom = 5;
+      // Rotate at intermediate speeds between zoom levels 3 and 5.
+      const slowSpinZoom = 3;
 
-    let userInteracting = false;
-    const spinEnabled = true;
+      let userInteracting = false;
+      const spinEnabled = true;
 
-    function spinGlobe() {
+      function spinGlobe() {
         const zoom = map.getZoom();
         if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
-            let distancePerSecond = 360 / secondsPerRevolution;
-            if (zoom > slowSpinZoom) {
-                // Slow spinning at higher zooms
-                const zoomDif =
-                    (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
-                distancePerSecond *= zoomDif;
-            }
-            const center = map.getCenter();
-            center.lng -= distancePerSecond;
-            // Smoothly animate the map over one second.
-            // When this animation is complete, it calls a 'moveend' event.
-            map.easeTo({ center, duration: 1000, easing: (n) => n });
+          let distancePerSecond = 360 / secondsPerRevolution;
+          if (zoom > slowSpinZoom) {
+            // Slow spinning at higher zooms
+            const zoomDif = (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
+            distancePerSecond *= zoomDif;
+          }
+          const center = map.getCenter();
+          center.lng -= distancePerSecond;
+          // Smoothly animate the map over one second.
+          // When this animation is complete, it calls a 'moveend' event.
+          map.easeTo({ center, duration: 1000, easing: (n) => n });
         }
-    }
+      }
 
-    // Pause spinning on interaction
-    map.on('mousedown', () => {
+      // Pause spinning on interaction
+      map.on("mousedown", () => {
         userInteracting = true;
-    });
-    map.on('dragstart', () => {
+      });
+      map.on("dragstart", () => {
         userInteracting = true;
-    });
+      });
 
-    // When animation is complete, start spinning if there is no ongoing interaction
-    map.on('moveend', () => {
+      // When animation is complete, start spinning if there is no ongoing interaction
+      map.on("moveend", () => {
         spinGlobe();
-    });
+      });
 
-    spinGlobe();
+      spinGlobe();
 
+      map.addInteraction("map-click", {
+        type: "click",
+        handler: (e) => {
+          var long = e.lngLat.lng;
+          var lat = e.lngLat.lat;
+          console.log(`Clicked at: ${e.lngLat.lng}, ${e.lngLat.lat}`);
+          document.getElementById("coord-box").style.display = "block";
+          document.getElementById("lat-value").innerHTML = lat;
+          document.getElementById("long-value").innerHTML = long;
+          document.getElementById("button-div").style.display = "block";
+        },
+      });
 
-    map.addInteraction('map-click', {
-  type: 'click',
-  handler: (e) => {
-    console.log(`Clicked at: ${e.lngLat.lng}, ${e.lngLat.lat}`);
-  }
-});
+      // Add draw rectangle mode
+      const modes = MapboxDraw.modes;
+      modes.draw_rectangle = DrawRectangle.default;
 
-// Add draw rectangle mode
-const modes = MapboxDraw.modes;
-modes.draw_rectangle = DrawRectangle.default;
+      const draw = new MapboxDraw({
+        displayControlsDefault: false, // Turn off default controls
+        controls: {
+          trash: true, // Keep trash button if needed
+        },
+        modes: modes,
+        defaultMode: "draw_rectangle",
+      });
 
-const draw = new MapboxDraw({
-    displayControlsDefault: false, // Turn off default controls
-    controls: {
-        trash: true // Keep trash button if needed
-    },
-    modes: modes,
-    defaultMode: 'draw_rectangle',
-});
+      map.addControl(draw);
 
-map.addControl(draw);
+      draw.changeMode("draw_rectangle");
 
-draw.changeMode('draw_rectangle');
+      map.on("draw.create", function (feature) {
+        console.log(feature);
+      });
 
-map.on('draw.create', function (feature) {
-    console.log(feature);
-});
+      // Create a custom draw rectangle button
+      const drawButton = document.createElement("button");
+      drawButton.innerHTML = '<i class="fa-regular fa-square"></i>';
+      drawButton.className = "mapbox-gl-draw-btn";
+      drawButton.onclick = () => {
+        draw.changeMode("draw_rectangle");
+      };
 
-// Create a custom button
-const drawButton = document.createElement('button');
-drawButton.innerHTML = '<i class="fa-regular fa-square"></i>';
-drawButton.className = 'mapbox-gl-draw-btn';
-drawButton.onclick = () => {
-    draw.changeMode('draw_rectangle');
-};
+      // Add button to the map container
+      map.getContainer().appendChild(drawButton);
 
-// Add button to the map container
-map.getContainer().appendChild(drawButton);
+      map.on("draw.create", function (feature) {
+        console.log(feature);
+      });
 
-map.on('draw.create', function (feature) {
-    console.log(feature);
-});
-
-// Custom styling for the button (optional)
-const style = document.createElement('style');
-style.innerHTML = `
+      // Custom styling for the button (optional)
+      const style = document.createElement("style");
+      style.innerHTML = `
     .mapbox-gl-draw-btn {
         position: absolute;
         top: 190px;
@@ -165,38 +275,32 @@ style.innerHTML = `
         z-index: 999;
     }
 `;
-document.head.appendChild(style);
+      document.head.appendChild(style);
 
-        // Add geolocate control to the map.
-        map.addControl(
+      // Add geolocate control to the map.
+      map.addControl(
         new mapboxgl.GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            // When active the map will receive updates to the device's location as it changes.
-            trackUserLocation: true,
-            // Draw an arrow next to the location dot to indicate which direction the device is heading.
-            showUserHeading: true
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          // When active the map will receive updates to the device's location as it changes.
+          trackUserLocation: true,
+          // Draw an arrow next to the location dot to indicate which direction the device is heading.
+          showUserHeading: true,
         })
-    );
+      );
 
-    // Adding search bar
-    const geocoder = new MapboxGeocoder({
-    accessToken: mapboxgl.accessToken,
-    mapboxgl: mapboxgl,
-    placeholder: 'Search for a location...',
-    marker: true,
-    zoom: 12
-});
+      // Adding search bar
+      const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        placeholder: "Search for a location...",
+        marker: true,
+        zoom: 12,
+      });
 
-map.addControl(geocoder, 'top-left');
-
-document.getElementById('submitButton').addEventListener('hover'), () => {
-    const button = document.getElementById('submitButton');
-    buton.classList.toggle('white-bg');
-}
-
-</script>
-
-</body>
+      map.addControl(geocoder, "top-left");
+      document.querySelector(".mapboxgl-ctrl-geocoder").style.width = "320px";
+    </script>
+  </body>
 </html>

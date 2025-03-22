@@ -1,4 +1,4 @@
-h1, h2, p, .submit-button {
+h1, h2, h4, p, .submitButton, form {
     font-family: "Finlandica", sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
@@ -10,35 +10,58 @@ h1, h2, p, .submit-button {
     body { margin: 0; padding: 0; }
     #map { 
         position: relative; 
-        height: 600px;
-        /* position: absolute;
-        top: 0;
-        bottom: 0; */
+        height: 650px;
         width: 100%; 
         }
-        .calculation-box {
-        height: 450px;
+
+    .calculation-box {
+        height: 535px;
         width: 300px;
         position: absolute;
-        bottom: 100px;
+        bottom: 115px;
         left: 10px;
-        background-color: rgba(245, 245, 231, 0.9);
+        background-color: rgb(245, 245, 231);
         padding: 10px;
         text-align: left;
+        border-radius: 10px;
     }
     p {
         margin: 0;
-        /* font-size: 13px; */
     }
-    .submit-button {
-        display: block;
-        margin: auto;
+
+    #button-div {
+        text-align: center;
+        position: relative;
+        margin-top: 10px;
+        margin-bottom: 25px;
+    }
+    .submitButton {
         padding: 10px 70px 10px 70px;
         background-color: black;
         color:white;
     }
 
-        .submit-button:hover {
-            background-color: #fdfdfd;
-            color: black;
-        }
+    .submitButton:hover {
+        background-color: #fdfdfd;
+        color: black;
+    }
+
+    #coord-box, #button-div {
+        display: none;
+    }
+
+    table, tr, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 5px;
+    }
+
+    th {
+        background-color: black;
+        color: white;
+        padding: 5px;
+    }
+
+    th + th {
+        border-left: 1px solid white;
+    }
