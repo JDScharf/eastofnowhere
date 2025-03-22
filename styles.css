@@ -18,7 +18,7 @@ h1, h2, h3, h4, p, .submitButton, form {
         height: 535px;
         width: 300px;
         position: absolute;
-        bottom: 115px;
+        top: 190px;
         left: 10px;
         background-color: rgb(245, 245, 231);
         padding: 10px;
