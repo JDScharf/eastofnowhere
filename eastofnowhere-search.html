@@ -4,46 +4,20 @@
 <meta charset="utf-8">
 <title>East of Nowhere Map Selection</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="styles.css" rel="stylesheet"
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Finlandica:ital,wght@0,400..700;1,400..700&family=Raleway:ital,wght@0,849;1,849&display=swap" rel="stylesheet">
 <script src="https://kit.fontawesome.com/d72363c0a2.js" crossorigin="anonymous"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js"></script>
 <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
 <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src='mapbox-gl-draw-rectangle-mode.min.js'></script>
 
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet">
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css" type="text/css">
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" type="text/css">
-<style>
-    h1, h2 {text-align: center;}
-    body { margin: 0; padding: 0; }
-    #map { 
-        position: relative; 
-        height: 600px;
-        /* position: absolute;
-        top: 0;
-        bottom: 0; */
-        width: 100%; 
-        }
-        .calculation-box {
-        height: 75px;
-        width: 300px;
-        position: absolute;
-        bottom: 40px;
-        left: 10px;
-        background-color: rgba(245, 245, 231, 0.9);
-        padding: 10px;
-        text-align: left;
-    }
-    p {
-        font-family: 'Open Sans';
-        margin: 0;
-        font-size: 13px;
-    }
-    button {
-        display: block;
-        margin: auto;
-    }
-</style>
 </head>
 <body>
     <h1>East of Nowhere</h1>
@@ -56,10 +30,15 @@
         <li>
     When you complete the square or rectangle, click the <i class="fa-regular fa-circle-dot" style="color: #FFD43B;"></i></li>
         <li>After you create your square/rectangle, if you want to move it you can drag it around or adjust the points.</li>
+        <li>If you need to cancel the boundary and redo it, click the <i class="fa-solid fa-trash"></i>. 
+        <li>To select a new boundary then click the <i class="fa-regular fa-square"></i> icon.</li>
         <li>When you are ready to submit your selected area, click the Submit Map Area button below.</li>
     </ol>
     <div id="calculated-area"></div><br>
-    <button onclick="captureAndCacheScreenshot()">Submit Map Area</button>
+    <button class="submit-button" onclick="captureAndCacheScreenshot()">Submit Map Area</button>
+    <br>
+    <br>
+    <br>
 </div>
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoiamRzY2hhcmYiLCJhIjoiY2p0ZHY4enNpMGg5ODN5cDdzajF2OWxsdCJ9.rv3Me2cIGTgBNQf4SqY6tw';
@@ -68,7 +47,7 @@
         style: 'mapbox://styles/jdscharf/cm8ara9ol007901qrhf333dnv',
         projection: 'globe', // Display the map as a globe
         zoom: 1.5,
-        center: [30, 15]
+        center: [-75, 20]
     });
 
     map.addControl(new mapboxgl.NavigationControl());
@@ -125,38 +104,81 @@
 
     spinGlobe();
 
-    // Trying to add bounding box code
-    const draw = new MapboxDraw({
-        displayControlsDefault: false,
-        // Select which mapbox-gl-draw control buttons to add to the map.
-        controls: {
-            polygon: true,
-            trash: true
-        },
-        // Set mapbox-gl-draw to draw by default.
-        // The user does not have to click the polygon control button first.
-        defaultMode: 'draw_polygon'
-    });
-    map.addControl(draw);
 
-    map.on('draw.create', updateArea);
-    map.on('draw.delete', updateArea);
-    map.on('draw.update', updateArea);
+    map.addInteraction('map-click', {
+  type: 'click',
+  handler: (e) => {
+    console.log(`Clicked at: ${e.lngLat.lng}, ${e.lngLat.lat}`);
+  }
+});
 
-    function updateArea(e) {
-        const data = draw.getAll();
-        const answer = document.getElementById('calculated-area');
-        if (data.features.length > 0) {
-            const area = turf.area(data);
-            // Restrict the area to 2 decimal points.
-            const rounded_area = Math.round(area * 100) / 100;
-            answer.innerHTML = `Map Area has been captured.<br>This map includes: <p><strong>${rounded_area}</strong></p><p>square meters</p>`;
-        } else {
-            answer.innerHTML = '';
-            if (e.type !== 'draw.delete')
-                alert('Click the map to draw a polygon.');
-        }
+// Add draw rectangle mode
+const modes = MapboxDraw.modes;
+modes.draw_rectangle = DrawRectangle.default;
+
+const draw = new MapboxDraw({
+    displayControlsDefault: false, // Turn off default controls
+    controls: {
+        trash: true // Keep trash button if needed
+    },
+    modes: modes,
+    defaultMode: 'draw_rectangle',
+});
+
+map.addControl(draw);
+
+draw.changeMode('draw_rectangle');
+
+map.on('draw.create', function (feature) {
+    console.log(feature);
+});
+
+// Create a custom button
+const drawButton = document.createElement('button');
+drawButton.innerHTML = '<i class="fa-regular fa-square"></i>';
+drawButton.className = 'mapbox-gl-draw-btn';
+drawButton.onclick = () => {
+    draw.changeMode('draw_rectangle');
+};
+
+// Add button to the map container
+map.getContainer().appendChild(drawButton);
+
+map.on('draw.create', function (feature) {
+    console.log(feature);
+});
+
+// Custom styling for the button (optional)
+const style = document.createElement('style');
+style.innerHTML = `
+    .mapbox-gl-draw-btn {
+        position: absolute;
+        top: 190px;
+        right: 12px;
+        background-color: white;
+        color: black;
+        border: none;
+        padding: 8px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 14px;
+        z-index: 999;
     }
+`;
+document.head.appendChild(style);
+
+        // Add geolocate control to the map.
+        map.addControl(
+        new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            // When active the map will receive updates to the device's location as it changes.
+            trackUserLocation: true,
+            // Draw an arrow next to the location dot to indicate which direction the device is heading.
+            showUserHeading: true
+        })
+    );
 
     // Adding search bar
     const geocoder = new MapboxGeocoder({
@@ -169,28 +191,10 @@
 
 map.addControl(geocoder, 'top-left');
 
-// Function to capture and cache screenshot
-async function captureAndCacheScreenshot() {
-    const canvas = map.getCanvas(); // Get the map's canvas
-    const dataUrl = canvas.toDataURL('image/png'); // Convert to Base64
-
-    // Convert data URL to Blob
-    const blob = await (await fetch(dataUrl)).blob();
-
-    // Open the browser cache
-    const cache = await caches.open('map-screenshots');
-
-    // Add the image to the cache
-    await cache.put('/latest-map-screenshot.png', new Response(blob));
-
-    console.log('Screenshot saved to cache!');
+document.getElementById('submitButton').addEventListener('hover'), () => {
+    const button = document.getElementById('submitButton');
+    buton.classList.toggle('white-bg');
 }
-
-// Add a button to trigger screenshot capture
-// const button = document.createElement('button');
-// button.innerText = 'Capture Screenshot';
-// button.onclick = captureAndCacheScreenshot;
-// document.body.appendChild(button);
 
 </script>
 
