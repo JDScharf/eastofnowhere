@@ -203,19 +203,6 @@ method="POST"
 
       spinGlobe();
 
-      map.addInteraction("map-click", {
-        type: "click",
-        handler: (e) => {
-          var long = e.lngLat.lng;
-          var lat = e.lngLat.lat;
-          console.log(`Clicked at: ${e.lngLat.lng}, ${e.lngLat.lat}`);
-          document.getElementById("coord-box").style.display = "block";
-          document.getElementById("lat-value").innerHTML = lat;
-          document.getElementById("long-value").innerHTML = long;
-          document.getElementById("button-div").style.display = "block";
-        },
-      });
-
       // Add draw rectangle mode
       const modes = MapboxDraw.modes;
       modes.draw_rectangle = DrawRectangle.default;
@@ -233,9 +220,58 @@ method="POST"
 
       draw.changeMode("draw_rectangle");
 
-      map.on("draw.create", function (feature) {
-        console.log(feature);
-      });
+      // Function to update coordinates display and form inputs
+      function updateCoordinates(e) {
+        // Get the drawn features, all of them
+        const features = draw.getAll().features;
+        console.log(features)
+
+        // Return if there are no features
+        if (features.lenth === 0) {
+          document.getElementById("coord-box").style.display = "none";
+          document.getElementById("button-div").style.display = "none";
+          return;
+        }
+
+        // Get most recently drawn feature
+        const feature = features[features.length - 1];
+
+        // Use turf.js to calculate bounding box of feature
+        const bbox = turf.bbox(feature);
+
+        // Grab the southwest and northeast corners
+        const swCorner = [bbox[0], bbox[1]]; // west, south
+        const neCorner = [bbox[2], bbox[3]]; // east, north
+
+        // Format coordinates as strings
+        const swText = `${swCorner[1].toFixed(6)}, ${swCorner[0].toFixed(6)}`; // Lat, Long
+        const neText = `${neCorner[1].toFixed(6)}, ${neCorner[0].toFixed(6)}`; // Lat, Long
+
+        // Update the display in the coordinate box
+        document.getElementById("sw-corner").textContent = swText;
+        document.getElementById("ne-corner").textContent = neText;
+
+        // Update the display in the form
+        document.getElementById("southwest-input").value = swText;
+        document.getElementById("northeast-input").value = neText;
+
+        // Show the coordinate box and button div
+        document.getElementById("coord-box").style.display = "block";
+        document.getElementById("button-div").style.display = "block";
+      }
+
+      // When rectangle is drawn
+      map.on("draw.create", updateCoordinates);
+
+      // When rectangle is updated
+      map.on("draw.update", updateCoordinates);
+
+      // Listen for draw delete
+      map.on("draw.delete", function() {
+        // Hide coord box and buton div when rectangle is deleted
+        document.getElementById("coord-box").style.display = "none";
+        document.getElementById("button-div").style.display = "none";
+      })
 
       // Create a custom draw rectangle button
       const drawButton = document.createElement("button");
@@ -248,9 +284,9 @@ method="POST"
       // Add button to the map container
       map.getContainer().appendChild(drawButton);
 
-      map.on("draw.create", function (feature) {
-        console.log(feature);
-      });
+      // map.on("draw.create", function (feature) {
+      //   console.log(feature);
+      // });
 
       // Custom styling for the button (optional)
       const style = document.createElement("style");
