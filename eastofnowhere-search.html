@@ -76,11 +76,11 @@
           </tr>
           <tr>
             <td>Southwest Corner</td>
-            <td id="lat-value"></td>
+            <td id="sw-corner"></td>
           </tr>
           <tr>
             <td>Northeast Corner</td>
-            <td id="long-value"></td>
+            <td id="ne-corner"></td>
           </tr>
         </table>
         <br />
@@ -91,7 +91,6 @@
       <br />
     </div>
     <div id="button-div">
-        <!-- modify this form HTML and place wherever you want your form -->
     <h3>Submit your custom map request</h2>
 <form
 action="https://formspree.io/f/movedelk"
@@ -116,24 +115,22 @@ method="POST"
         <option value="Minimalist">Minimalist</option>
         <option value="Topographic">Topographic</option>
     </select> 
-
 <br>
 <br> -->
 
 <label for="southest-corner">
   Southwest Corner:
-  <input type="text" name="southwest-corner">
+  <input type="text" id="southwest-input" name="southwest-corner">
 </label>
 <br>
 <br>
 
 <label for="northest-corner">
     Northeast Corner:
-    <input type="text" name="northest-corner">
+    <input type="text" id="northeast-input" name="northest-corner">
   </label>
   <br>
   <br>
-<!-- your other form fields go here -->
 
 <button class="submitButton" onclick="captureAndCacheScreenshot()" type="submit">
     Submit Map Area
