@@ -83,11 +83,6 @@
             <td id="ne-corner"></td>
           </tr>
         </table>
-
-        <div id="static-map-container">
-          <h4>Preview of Selected Area</h4>
-          <img id="static-map-img" alt="Map Preview" width="400" />
-        </div>
         <br />
         <br />
       </div>
@@ -125,20 +120,26 @@ method="POST"
 
 <label for="southest-corner">
   Southwest Corner:
-  <input type="text" id="southwest-input" name="southwest-corner">
+  <input type="text" id="southwest-input" name="southwest-corner" readonly>
 </label>
 <br>
 <br>
 
 <label for="northest-corner">
     Northeast Corner:
-    <input type="text" id="northeast-input" name="northest-corner">
+    <input type="text" id="northeast-input" name="northest-corner" readonly>
   </label>
+  <br>
+  <br>
+  <div id="static-map-container">
+    <h4>Preview of Selected Area</h4>
+    <img id="static-map-img" alt="Map Preview" width="400" />
+  </div>
   <br>
   <br>
 
 <!-- hidden field -->
-  <input type="hidden" id="static-map-url" name="static-map-url" value="">
+  <input type="hidden" id="static-map-url" name="static-map-url" value="" readonly>
 
 <button class="submitButton" type="submit">
     Submit Map Area
@@ -271,37 +272,68 @@ method="POST"
         document.getElementById("button-div").style.display = "block";
       }
 
+      // Function to generate a static map image for the selected area
       function generateStaticMap(bbox) {
-        // Calculate center of bounding box
-        const centerLon = (bbox[0] + bbox[2] / 2);
-        const centerLat = (bbox[1] + bbox[3] / 2);
+        // The bbox is in format [west, south, east, north]
+        // For the static API to show the entire bounding box, we use the "bbox" parameter
+        // Format is [west, south, east, north]
+        
+        // Get the map style from the current map (or use a fixed style)
+        const style = 'jdscharf/cm8ara9ol007901qrhf333dnv';
+        
+        // Build the static map URL using the bbox parameter
+        // This tells Mapbox to fit the map to show this exact bounding box
+        const staticMapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/[${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}]/400x300@2x?access_token=${mapboxgl.accessToken}`;
+        
+        // Update the image source
+        const staticMapImg = document.getElementById('static-map-img');
+        staticMapImg.src = staticMapUrl;
+        
+        // Store the URL in the hidden form field
+        document.getElementById('static-map-url').value = staticMapUrl;
+        
+        // Also create a version with a geojson overlay to highlight the selected area
+        createGeoJSONOverlayMap(bbox);
+      }
 
-   // Calculate appropriate zoom level based on bounding box size
-  // This is a heuristic approach - may need adjustment
-  const lonDiff = Math.abs(bbox[2] - bbox[0]);
-  const latDiff = Math.abs(bbox[3] - bbox[1]);
-  const maxDiff = Math.max(lonDiff, latDiff);
-  
-  // Approximate zoom level calculation - adjust constants if needed
-  let zoom = Math.floor(Math.log2(360 / maxDiff)) - 1;
-  zoom = Math.min(Math.max(zoom, 0), 22); // Clamp between 0 and 22
-  
-  // Get the map style from the current map (or use a fixed style)
-  const style = map.getStyle().sprite.split('mapbox://styles/')[1] || 'jdscharf/cm8ara9ol007901qrhf333dnv';
-  
-  // Create path for Mapbox Static Images API with overlay for the rectangle
-  const path = encodeURIComponent(`path-2+f44-0.5(${bbox[0]},${bbox[1]},${bbox[2]},${bbox[1]},${bbox[2]},${bbox[3]},${bbox[0]},${bbox[3]},${bbox[0]},${bbox[1]})`);
-  
-  // Build the static map URL
-  const staticMapUrl = `https://api.mapbox.com/styles/v1/${style}/static/${path}/${centerLon},${centerLat},${zoom},0/400x300@2x?access_token=${mapboxgl.accessToken}`;
-  
-  // Update the image source
-  const staticMapImg = document.getElementById('static-map-img');
-  staticMapImg.src = staticMapUrl;
-  
-  // Store the URL in the hidden form field
-  document.getElementById('static-map-url').value = staticMapUrl;
-}
+        // Function to create a static map with GeoJSON overlay
+        function createGeoJSONOverlayMap(bbox) {
+        // Create a GeoJSON polygon from the bounding box
+        const polygon = {
+          type: "Feature",
+          properties: {
+            "stroke": "#ff0000",
+            "stroke-width": 2,
+            "stroke-opacity": 1,
+            "fill": "#ff0000",
+            "fill-opacity": 0.2
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[
+              [bbox[0], bbox[1]], // sw
+              [bbox[2], bbox[1]], // se
+              [bbox[2], bbox[3]], // ne
+              [bbox[0], bbox[3]], // nw
+              [bbox[0], bbox[1]]  // sw (close the polygon)
+            ]]
+          }
+        };
+        
+        // Encode the GeoJSON as a URL-safe string
+        const encodedGeoJSON = encodeURIComponent(JSON.stringify(polygon));
+        
+        // Build the static map URL with the GeoJSON overlay
+        // Using the custom style you specified
+        const staticMapUrl = `https://api.mapbox.com/styles/v1/jdscharf/cm8ara9ol007901qrhf333dnv/static/geojson(${encodedGeoJSON})/[${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}]/400x300@2x?padding=20&access_token=${mapboxgl.accessToken}`;
+        
+        // Update the image source
+        const staticMapImg = document.getElementById('static-map-img');
+        staticMapImg.src = staticMapUrl;
+        
+        // Store the URL in the hidden form field
+        document.getElementById('static-map-url').value = staticMapUrl;
+      }
 
       // When rectangle is drawn
       map.on("draw.create", updateCoordinates);
