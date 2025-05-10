@@ -120,19 +120,28 @@ method="POST"
 
 <label for="southest-corner">
   Southwest Corner:
-  <input type="text" id="southwest-input" name="southwest-corner">
+  <input type="text" id="southwest-input" name="southwest-corner" readonly>
 </label>
 <br>
 <br>
 
 <label for="northest-corner">
     Northeast Corner:
-    <input type="text" id="northeast-input" name="northest-corner">
+    <input type="text" id="northeast-input" name="northest-corner" readonly>
   </label>
   <br>
   <br>
+  <div id="static-map-container">
+    <h4>Preview of Selected Area</h4>
+    <img id="static-map-img" alt="Map Preview" width="400" />
+  </div>
+  <br>
+  <br>
 
-<button class="submitButton" onclick="captureAndCacheScreenshot()" type="submit">
+<!-- hidden field -->
+  <input type="hidden" id="static-map-url" name="static-map-url" value="" readonly>
+
+<button class="submitButton" type="submit">
     Submit Map Area
   </button>
   <br>
@@ -255,9 +264,75 @@ method="POST"
         document.getElementById("southwest-input").value = swText;
         document.getElementById("northeast-input").value = neText;
 
+        // Get the static map image
+        generateStaticMap(bbox);
+
         // Show the coordinate box and button div
         document.getElementById("coord-box").style.display = "block";
         document.getElementById("button-div").style.display = "block";
+      }
+
+      // Function to generate a static map image for the selected area
+      function generateStaticMap(bbox) {
+        // The bbox is in format [west, south, east, north]
+        // For the static API to show the entire bounding box, we use the "bbox" parameter
+        // Format is [west, south, east, north]
+        
+        // Get the map style from the current map (or use a fixed style)
+        const style = 'jdscharf/cm8ara9ol007901qrhf333dnv';
+        
+        // Build the static map URL using the bbox parameter
+        // This tells Mapbox to fit the map to show this exact bounding box
+        const staticMapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/[${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}]/400x300@2x?access_token=${mapboxgl.accessToken}`;
+        
+        // Update the image source
+        const staticMapImg = document.getElementById('static-map-img');
+        staticMapImg.src = staticMapUrl;
+        
+        // Store the URL in the hidden form field
+        document.getElementById('static-map-url').value = staticMapUrl;
+        
+        // Also create a version with a geojson overlay to highlight the selected area
+        createGeoJSONOverlayMap(bbox);
+      }
+
+        // Function to create a static map with GeoJSON overlay
+        function createGeoJSONOverlayMap(bbox) {
+        // Create a GeoJSON polygon from the bounding box
+        const polygon = {
+          type: "Feature",
+          properties: {
+            "stroke": "#ff0000",
+            "stroke-width": 2,
+            "stroke-opacity": 1,
+            "fill": "#ff0000",
+            "fill-opacity": 0.2
+          },
+          geometry: {
+            type: "Polygon",
+            coordinates: [[
+              [bbox[0], bbox[1]], // sw
+              [bbox[2], bbox[1]], // se
+              [bbox[2], bbox[3]], // ne
+              [bbox[0], bbox[3]], // nw
+              [bbox[0], bbox[1]]  // sw (close the polygon)
+            ]]
+          }
+        };
+        
+        // Encode the GeoJSON as a URL-safe string
+        const encodedGeoJSON = encodeURIComponent(JSON.stringify(polygon));
+        
+        // Build the static map URL with the GeoJSON overlay
+        // Using the custom style you specified
+        const staticMapUrl = `https://api.mapbox.com/styles/v1/jdscharf/cm8ara9ol007901qrhf333dnv/static/geojson(${encodedGeoJSON})/[${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}]/400x300@2x?padding=20&access_token=${mapboxgl.accessToken}`;
+        
+        // Update the image source
+        const staticMapImg = document.getElementById('static-map-img');
+        staticMapImg.src = staticMapUrl;
+        
+        // Store the URL in the hidden form field
+        document.getElementById('static-map-url').value = staticMapUrl;
       }
 
       // When rectangle is drawn
@@ -271,6 +346,10 @@ method="POST"
         // Hide coord box and buton div when rectangle is deleted
         document.getElementById("coord-box").style.display = "none";
         document.getElementById("button-div").style.display = "none";
+
+        // Clear static map image
+        document.getElementById('static-map-img').src = '';
+        document.getElementById('static-map-url').value = '';
       })
 
       // Create a custom draw rectangle button
@@ -306,6 +385,21 @@ method="POST"
     }
 `;
       document.head.appendChild(style);
+
+ // Add additional styles for static map container
+const mapContainerStyle = document.createElement("style");
+mapContainerStyle.innerHTML = `
+  #static-map-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  #static-map-img {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-width: 100%;
+  }
+`;
+document.head.appendChild(mapContainerStyle);     
 
       // Add geolocate control to the map.
       map.addControl(
